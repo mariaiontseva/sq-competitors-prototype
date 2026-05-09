@@ -1,0 +1,864 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>SmarterQueue — Discover Competitors</title>
+<style>
+  :root{
+    --sq-navy:#4a5fc4;
+    --sq-navy-darker:#2c3a94;
+    --sq-navy-deep:#1f2a7a;
+    --sq-blue:#4258ff;
+    --sq-blue-soft:#eef0ff;
+    --sq-green:#26a93a;
+    --sq-green-hover:#1f9131;
+    --sq-pink:#e04ea8;
+    --sq-text:#222b45;
+    --sq-text-muted:#5b6378;
+    --sq-text-faint:#8b91a4;
+    --sq-border:#e3e6f0;
+    --sq-bg:#f5f6fa;
+    --sq-bg-hover:#f1f3f9;
+    --sq-warn-bg:#fff8e0;
+    --sq-warn-bd:#f4d35e;
+    --sq-up:#1ea35a;
+    --sq-down:#e0464a;
+    --shadow-card:none;
+    --radius:10px;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{font-family:"Inter","Helvetica Neue",Arial,sans-serif;color:var(--sq-text);background:var(--sq-bg);font-size:14px;line-height:1.4;-webkit-font-smoothing:antialiased}
+  button{font:inherit;color:inherit;cursor:pointer}
+  a{color:var(--sq-blue);text-decoration:none}
+  a:hover{text-decoration:underline}
+
+  .app{min-height:100vh;display:flex;flex-direction:column}
+
+  /* ---------- Topbar ---------- */
+  .topbar{
+    height:60px;background:var(--sq-navy);color:#fff;display:flex;align-items:center;
+    padding:0 14px 0 16px;gap:16px;
+  }
+  .logo{
+    width:38px;height:38px;border-radius:50%;background:#fff;color:var(--sq-navy);
+    display:grid;place-items:center;font-weight:800;font-size:22px;font-family:Georgia,serif;line-height:1;flex-shrink:0;
+  }
+  .org-switcher{
+    display:flex;align-items:center;gap:14px;padding:7px 12px 7px 14px;border-radius:8px;cursor:pointer;min-width:200px;
+  }
+  .org-switcher:hover{background:rgba(255,255,255,.07)}
+  .org-switcher .label{font-size:12px;opacity:.85;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:170px}
+  .org-switcher .name{font-weight:700;font-size:18px;line-height:1.1;margin-top:2px}
+  .org-switcher .chev{opacity:.85;flex-shrink:0;margin-left:auto}
+
+  .topnav{display:flex;align-items:center;gap:6px;flex:1;justify-content:center}
+  .topnav .item{
+    display:flex;align-items:center;gap:8px;padding:9px 18px;border-radius:8px;color:#fff;
+    font-weight:500;font-size:15px;cursor:pointer;background:transparent;border:0;
+  }
+  .topnav .item:hover{background:rgba(255,255,255,.08)}
+  .topnav .item.active{background:var(--sq-navy-darker)}
+  .topnav .item svg{flex-shrink:0}
+
+  .topright{display:flex;align-items:center;gap:6px;flex-shrink:0}
+  .topright .upgrade{
+    background:var(--sq-green);color:#fff;font-weight:700;padding:9px 22px;border:0;border-radius:8px;font-size:15px;margin-right:6px;
+  }
+  .topright .upgrade:hover{background:var(--sq-green-hover)}
+  .topright .icon-btn{
+    width:36px;height:36px;border-radius:50%;display:grid;place-items:center;background:transparent;border:0;color:#fff;position:relative;
+  }
+  .topright .icon-btn:hover{background:rgba(255,255,255,.10)}
+  .topright .icon-btn .badge{
+    position:absolute;top:0;right:0;background:#e0464a;color:#fff;font-size:11px;border-radius:10px;padding:1px 6px;font-weight:700;line-height:1.2;
+  }
+
+  /* ---------- Subnav ---------- */
+  .subnav{
+    background:#fff;border-bottom:1px solid var(--sq-border);
+    display:flex;align-items:center;padding:0 28px;height:56px;gap:4px;
+  }
+  .subnav .tab{
+    padding:18px 16px;font-weight:500;color:var(--sq-text);cursor:pointer;
+    border-bottom:3px solid transparent;margin-bottom:-1px;font-size:15px;
+  }
+  .subnav .tab:hover{color:var(--sq-text)}
+  .subnav .tab.active{color:var(--sq-blue);border-bottom-color:var(--sq-blue);font-weight:500}
+  .subnav .new-pill{margin-left:6px;background:#dffce5;color:#1a7c2a;font-size:10px;padding:2px 6px;border-radius:10px;font-weight:700}
+  .subnav .right{margin-left:auto;display:flex;gap:10px;align-items:center}
+  .btn-primary{background:var(--sq-green);color:#fff;border:0;border-radius:6px;padding:9px 16px;font-weight:600;display:inline-flex;align-items:center;gap:6px}
+  .btn-primary:hover{background:var(--sq-green-hover)}
+  .btn-secondary{background:#fff;color:var(--sq-text);border:1px solid var(--sq-border);border-radius:6px;padding:8px 14px;font-weight:500;display:inline-flex;align-items:center;gap:6px}
+  .btn-secondary:hover{background:var(--sq-bg-hover)}
+  .btn-ghost{background:transparent;border:0;color:var(--sq-blue);padding:6px 8px;font-weight:600}
+
+  /* ---------- Layout shell ---------- */
+  .work{flex:1;display:flex;min-height:0}
+  .sidebar{
+    width:300px;background:#fff;border-right:1px solid var(--sq-border);
+    padding:18px 16px;overflow-y:auto;flex-shrink:0;
+  }
+  .sidebar h3{font-size:18px;margin:0 0 14px;display:flex;align-items:center;justify-content:space-between}
+  .sidebar .sb-action{display:flex;align-items:center;gap:8px;color:var(--sq-blue);font-weight:600;padding:6px 0;cursor:pointer;user-select:none}
+  .sidebar .sb-action:hover{text-decoration:underline}
+  .sidebar .group-head{
+    display:flex;align-items:center;justify-content:space-between;
+    margin-top:18px;margin-bottom:6px;font-size:11px;letter-spacing:.06em;color:var(--sq-text-faint);text-transform:uppercase;font-weight:700;
+  }
+  .sidebar .row{
+    display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:6px;cursor:pointer;user-select:none;
+    border-left:3px solid transparent;margin-left:-3px;
+  }
+  .sidebar .row:hover{background:var(--sq-bg-hover)}
+  .sidebar .row.active{background:var(--sq-blue-soft);border-left-color:var(--sq-blue)}
+  .sidebar .row .meta{flex:1;min-width:0}
+  .sidebar .row .name{font-weight:600;font-size:13px;display:flex;align-items:center;gap:6px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .sidebar .row .stats{font-size:11px;color:var(--sq-text-muted);display:flex;gap:8px}
+
+  .main{flex:1;overflow-y:auto;min-width:0}
+
+  /* ---------- Common pieces ---------- */
+  .panel{background:#fff;border:1px solid var(--sq-border);border-radius:var(--radius);box-shadow:var(--shadow-card)}
+  .panel-padded{padding:24px 26px;background:#fff;border:1px solid var(--sq-border);border-radius:var(--radius);box-shadow:var(--shadow-card)}
+  .panel-padded h3{font-size:16px;font-weight:700;letter-spacing:-0.01em;margin:0}
+  .panel-padded .titlebar{display:flex;align-items:flex-end;justify-content:space-between;gap:14px;margin-bottom:18px;padding-bottom:14px;border-bottom:1px solid var(--sq-border)}
+  .panel-padded .titlebar h3{display:flex;align-items:center;gap:10px}
+  .panel-padded .titlebar .legend{font-size:12px;color:var(--sq-text-muted);text-align:right;line-height:1.4}
+  .pill{display:inline-flex;align-items:center;gap:6px;padding:3px 9px;border-radius:99px;font-size:11px;font-weight:600}
+  .pill.up{background:#e3f8ec;color:var(--sq-up)}
+  .pill.down{background:#fde7e8;color:var(--sq-down)}
+  .pill.neutral{background:#eceff7;color:var(--sq-text-muted)}
+  .platform-icon{width:18px;height:18px;border-radius:4px;display:inline-grid;place-items:center;color:#fff;font-size:10px;font-weight:700;flex-shrink:0}
+  .pi-fb{background:#1877f2}
+  .pi-ig{background:linear-gradient(45deg,#f09433,#e6683c 25%,#dc2743 50%,#cc2366 75%,#bc1888)}
+  .pi-x{background:#000}
+  .pi-li{background:#0a66c2}
+  .pi-tt{background:#000}
+  .pi-yt{background:#ff0000}
+  .pi-pi{background:#bd081c}
+  .avatar{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;font-weight:700;color:#fff;flex-shrink:0;font-size:13px}
+  .row-flex{display:flex;align-items:center;gap:10px}
+  .muted{color:var(--sq-text-muted)}
+  .small{font-size:12px}
+  .chart-wrap{height:340px;width:100%}
+  .chart-wrap.big{height:380px}
+
+  .breadcrumb{font-size:12px;color:var(--sq-text-muted);margin-bottom:10px}
+  .breadcrumb a{color:var(--sq-text-muted)}
+
+  .tabs{display:flex;gap:4px;border-bottom:1px solid var(--sq-border);margin-bottom:14px}
+  .tabs .t{padding:10px 14px;color:var(--sq-text-muted);border-bottom:2px solid transparent;margin-bottom:-1px;cursor:pointer;font-weight:500}
+  .tabs .t.active{color:var(--sq-blue);border-bottom-color:var(--sq-blue);font-weight:600}
+
+  /* ---------- OVERVIEW ---------- */
+  .ov{padding:22px 28px;display:flex;flex-direction:column;gap:18px}
+  .ov .head{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+  .ov .head h1{margin:0;font-size:22px}
+  .ov .head .desc{color:var(--sq-text-muted);font-size:13px;margin-top:2px}
+  .ov .head .right-controls{margin-left:auto;display:flex;gap:8px;align-items:center}
+
+  .ov-summary{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+  .summary{background:#fff;border:1px solid var(--sq-border);border-radius:var(--radius);padding:18px 20px;box-shadow:var(--shadow-card)}
+  .summary .label{font-size:11px;color:var(--sq-text-muted);text-transform:uppercase;letter-spacing:.06em;font-weight:700}
+  .summary .v{font-size:28px;font-weight:800;letter-spacing:-0.02em;margin-top:6px;display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;line-height:1.1}
+  .summary .v .pill{font-size:11px;align-self:center}
+  .summary .who{font-size:12px;color:var(--sq-text-muted);margin-top:6px}
+
+  .ov-leaderboards{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+  .ov-full{grid-column:1 / -1}
+  .lead-card{padding:22px 24px}
+  .lead-card .titlebar{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid var(--sq-border);gap:8px}
+  .lead-card h3{margin:0;font-size:14px;font-weight:700;letter-spacing:-0.01em;display:flex;align-items:center;gap:8px}
+  .lead-card .legend{font-size:11px;color:var(--sq-text-muted);font-weight:500}
+
+  .bar-row{display:grid;grid-template-columns:170px 1fr 120px;gap:16px;align-items:center;padding:13px 6px;border-bottom:1px dashed var(--sq-border);cursor:pointer;border-radius:6px;margin:0 -6px;transition:background .12s}
+  .bar-row:last-child{border-bottom:0}
+  .bar-row:hover{background:#f3f6ff}
+  .bar-row .label{display:flex;align-items:center;gap:9px;font-size:13.5px;font-weight:500;min-width:0}
+  .bar-row .label .name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .bar-row .label.you{color:var(--sq-blue);font-weight:700}
+  .bar-row .label .avatar{width:26px;height:26px;font-size:12px;border-radius:6px}
+  .bar-track{height:16px;background:var(--sq-bg);border-radius:99px;position:relative;overflow:hidden}
+  .bar-fill{height:100%;border-radius:99px;background:linear-gradient(90deg,#a4adf3,#5f6cd6)}
+  .bar-fill.you{background:linear-gradient(90deg,#7e3ff2,#4258ff)}
+  .bar-row .value{font-variant-numeric:tabular-nums;font-weight:700;font-size:14px;text-align:right;display:flex;justify-content:flex-end;gap:8px;align-items:baseline}
+  .avg-line{position:absolute;top:-4px;bottom:-4px;width:2px;background:var(--sq-text-faint);opacity:.55}
+
+  .cross-posts .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+  .cross-posts .post-row{display:flex;gap:14px;padding:14px;border:1px solid var(--sq-border);border-radius:8px;background:#fdfdff;transition:background .12s,border-color .12s}
+  .cross-posts .post-row:hover{background:#f3f6ff;border-color:#bcc6ff}
+  .cross-posts .thumb{width:60px;height:60px;border-radius:8px;flex-shrink:0;align-self:flex-start}
+  .cross-posts .body{flex:1;min-width:0}
+  .cross-posts .body .text{font-size:13px;line-height:1.45;color:var(--sq-text);margin-top:4px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+
+  /* ---------- COMPETITOR DETAIL ---------- */
+  .det{padding:22px 28px;display:flex;flex-direction:column;gap:18px}
+  .det .profile-head{display:flex;align-items:center;gap:16px}
+  .det .profile-head .pa{width:56px;height:56px;border-radius:50%;display:grid;place-items:center;color:#fff;font-weight:700;font-size:22px;flex-shrink:0}
+  .det .profile-head h1{margin:0;font-size:22px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  .det .profile-head .competitor-tag{background:#fbeefa;color:#9c247c;font-size:11px;padding:3px 8px;border-radius:99px;font-weight:600}
+  .det .profile-head .handle{color:var(--sq-text-muted);font-size:13px;margin-top:2px}
+  .det .profile-head .actions{margin-left:auto;display:flex;gap:8px}
+
+  .overlay-bar{
+    background:#fff;border:1px solid var(--sq-border);border-radius:var(--radius);
+    padding:12px 16px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+  }
+  .overlay-bar .lbl{font-weight:600;font-size:12px;color:var(--sq-text-muted);text-transform:uppercase;letter-spacing:.06em;margin-right:6px;flex-shrink:0}
+  .overlay-bar .toggle{
+    display:inline-flex;align-items:center;gap:8px;background:var(--sq-bg);border:1px solid var(--sq-border);
+    border-radius:99px;padding:6px 12px;font-size:13px;font-weight:500;cursor:pointer;user-select:none;transition:background .12s,border-color .12s;
+  }
+  .overlay-bar .toggle:hover{background:#eceff7}
+  .overlay-bar .toggle.on{background:var(--sq-blue-soft);color:var(--sq-navy-darker);border-color:#bcc6ff;font-weight:600}
+  .overlay-bar .toggle .dot{width:9px;height:9px;border-radius:50%;background:var(--sq-text-faint)}
+  .overlay-bar .toggle.on .dot{background:var(--sq-blue)}
+
+  .stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+  .stat{background:#fff;border:1px solid var(--sq-border);border-radius:var(--radius);padding:20px 22px;box-shadow:var(--shadow-card)}
+  .stat .l{font-size:11px;color:var(--sq-text-muted);text-transform:uppercase;letter-spacing:.06em;font-weight:700}
+  .stat .v{font-size:30px;font-weight:800;letter-spacing:-0.02em;margin-top:6px;display:flex;align-items:baseline;gap:10px;line-height:1.1}
+  .stat .vs{font-size:12px;color:var(--sq-text-muted);margin-top:10px;padding-top:10px;border-top:1px dashed var(--sq-border)}
+  .stat .vs b{color:var(--sq-text)}
+
+  .det-grid{display:grid;grid-template-columns:1.4fr 1fr;gap:18px}
+  .det-full{grid-column:1 / -1}
+
+  .compare-table{width:100%;border-collapse:collapse}
+  .compare-table th{text-align:left;font-weight:700;color:var(--sq-text-muted);font-size:11px;text-transform:uppercase;letter-spacing:.06em;padding:10px 10px;border-bottom:1px solid var(--sq-border)}
+  .compare-table td{padding:13px 10px;border-bottom:1px solid var(--sq-border);font-size:13.5px}
+  .compare-table tr:last-child td{border-bottom:0}
+  .compare-table td.you{background:#f3f5ff;font-weight:600}
+  .compare-table td:nth-child(4){font-variant-numeric:tabular-nums;color:var(--sq-text-muted);font-weight:600}
+
+  .top-posts .post-card{display:flex;gap:14px;padding:14px 0;border-bottom:1px solid var(--sq-border)}
+  .top-posts .post-card:last-child{border-bottom:0;padding-bottom:0}
+  .top-posts .post-card:first-child{padding-top:0}
+  .top-posts .thumb{width:54px;height:54px;border-radius:8px;flex-shrink:0}
+  .top-posts .body{flex:1;min-width:0}
+  .top-posts .body .text{font-size:13px;line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;color:var(--sq-text)}
+  .top-posts .body .stats{display:flex;gap:14px;font-size:11px;color:var(--sq-text-muted);margin-top:6px;align-items:center}
+
+  /* ---------- Modal ---------- */
+  .modal-mask{
+    position:fixed;inset:0;background:rgba(15,20,55,.45);display:none;align-items:center;justify-content:center;z-index:60;
+  }
+  .modal-mask.open{display:flex}
+  .modal{
+    background:#fff;border-radius:12px;width:520px;max-width:92vw;box-shadow:0 30px 80px rgba(20,30,80,.25);overflow:hidden;
+  }
+  .modal-head{padding:18px 22px;border-bottom:1px solid var(--sq-border);display:flex;align-items:center;justify-content:space-between}
+  .modal-head h2{margin:0;font-size:17px}
+  .modal-head .close{background:transparent;border:0;color:var(--sq-text-muted);font-size:18px}
+  .modal-body{padding:22px}
+  .modal-body .field{margin-bottom:14px}
+  .modal-body .field label{display:block;font-size:12px;font-weight:600;color:var(--sq-text-muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em}
+  .modal-body input{width:100%;padding:11px 14px;border:1px solid var(--sq-border);border-radius:8px;font:inherit;color:inherit}
+  .modal-body input:focus{outline:0;border-color:var(--sq-blue);box-shadow:0 0 0 3px rgba(66,88,255,.15)}
+  .modal-body .platforms{display:flex;flex-wrap:wrap;gap:6px}
+  .modal-body .platforms .opt{
+    display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border:1px solid var(--sq-border);border-radius:99px;
+    font-size:12px;font-weight:500;cursor:pointer;
+  }
+  .modal-body .platforms .opt.on{background:var(--sq-blue-soft);border-color:#bcc6ff;color:var(--sq-navy-darker)}
+  .modal-body .hint{
+    background:var(--sq-warn-bg);border:1px solid var(--sq-warn-bd);border-radius:8px;padding:10px 12px;font-size:12px;color:#7a5b00;margin-top:6px;
+  }
+  .modal-foot{padding:14px 22px;border-top:1px solid var(--sq-border);display:flex;justify-content:space-between;align-items:center;background:var(--sq-bg)}
+  .modal-foot .quota{font-size:12px;color:var(--sq-text-muted)}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- Topbar -->
+  <div class="topbar">
+    <div class="logo">Q</div>
+    <div class="org-switcher">
+      <div>
+        <div class="label">Maria's Organization</div>
+        <div class="name">Ta</div>
+      </div>
+      <svg class="chev" width="18" height="18" viewBox="0 0 20 20" fill="none"><path d="M5 8l5 5 5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </div>
+    <nav class="topnav">
+      <button class="item">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M16.5 3.5a2.121 2.121 0 113 3L7 19l-4 1 1-4z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Publish
+      </button>
+      <button class="item active">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="1.8"/><path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+        Discover
+      </button>
+      <button class="item">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M5 19V11M10 19V5M15 19V13M20 19V8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+        Analyze
+      </button>
+      <button class="item">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="3.5" stroke="currentColor" stroke-width="1.8"/><path d="M5 20c1-3.5 4-5.5 7-5.5s6 2 7 5.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+        Social Profiles
+      </button>
+    </nav>
+    <div class="topright">
+      <button class="upgrade">Upgrade</button>
+      <button class="icon-btn"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M6 9a6 6 0 1112 0v4l1.5 2.5h-15L6 13z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M10 19a2 2 0 004 0" stroke="currentColor" stroke-width="1.8"/></svg><span class="badge">8</span></button>
+      <button class="icon-btn"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8"/><path d="M9.5 9a2.5 2.5 0 015 0c0 1.4-2.5 1.6-2.5 3.5M12 17h.01" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button>
+      <button class="icon-btn"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.8"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 11-4 0v-.09a1.65 1.65 0 00-1-1.51 1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06A1.65 1.65 0 004.6 15a1.65 1.65 0 00-1.51-1H3a2 2 0 110-4h.09a1.65 1.65 0 001.51-1 1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06a1.65 1.65 0 001.82.33h0a1.65 1.65 0 001-1.51V3a2 2 0 114 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82v0a1.65 1.65 0 001.51 1H21a2 2 0 110 4h-.09a1.65 1.65 0 00-1.51 1z" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+      <button class="icon-btn"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="1.8"/><path d="M4 21c1.5-4 5-6 8-6s6.5 2 8 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button>
+    </div>
+  </div>
+
+  <!-- Subnav (Discover) -->
+  <div class="subnav">
+    <div class="tab">Find Content</div>
+    <div class="tab">Auto-Importers</div>
+    <div class="tab">Bulk Import from CSV</div>
+    <div class="tab">Chrome Extension</div>
+    <div class="tab active">Competitors<span class="new-pill">NEW</span></div>
+    <div class="right">
+      <button class="btn-primary" onclick="openAddModal()">+ Add Competitor</button>
+    </div>
+  </div>
+
+  <!-- Work area -->
+  <div class="work">
+    <aside class="sidebar">
+      <h3>Tracked Competitors <span class="pill neutral" id="quota">3 / 5</span></h3>
+      <div class="sb-action" onclick="openAddModal()">
+        <svg width="16" height="16" viewBox="0 0 20 20" fill="none"><path d="M10 4v12M4 10h12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        Add Competitor
+      </div>
+      <div class="sb-action">
+        <svg width="16" height="16" viewBox="0 0 20 20" fill="none"><path d="M3 5h14M3 10h14M3 15h14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+        Bulk Import from CSV
+      </div>
+
+      <div class="group-head"><span>Views</span></div>
+      <div class="row active" data-view="overview">
+        <div class="avatar" style="background:linear-gradient(135deg,#4258ff,#7e3ff2);width:28px;height:28px;font-size:11px">⌘</div>
+        <div class="meta">
+          <div class="name">Overview</div>
+          <div class="stats">All competitors at a glance</div>
+        </div>
+      </div>
+
+      <div class="group-head"><span>Competitors</span><span>Followers</span></div>
+      <div class="row" data-view="competitor" data-comp="Hootsuite">
+        <div class="avatar" style="background:#000;width:28px;height:28px;font-size:11px">H</div>
+        <div class="meta">
+          <div class="name">Hootsuite <span class="platform-icon pi-ig">i</span><span class="platform-icon pi-fb">f</span><span class="platform-icon pi-x">x</span></div>
+          <div class="stats"><span>340K</span><span class="pill down">-0.3%</span></div>
+        </div>
+      </div>
+      <div class="row" data-view="competitor" data-comp="Sprout Social">
+        <div class="avatar" style="background:#1a8b6a;width:28px;height:28px;font-size:11px">S</div>
+        <div class="meta">
+          <div class="name">Sprout Social <span class="platform-icon pi-ig">i</span><span class="platform-icon pi-li">l</span><span class="platform-icon pi-x">x</span></div>
+          <div class="stats"><span>285K</span><span class="pill up">+0.8%</span></div>
+        </div>
+      </div>
+      <div class="row" data-view="competitor" data-comp="Metricool">
+        <div class="avatar" style="background:#dfff5c;color:#000;width:28px;height:28px;font-size:11px">M</div>
+        <div class="meta">
+          <div class="name">Metricool <span class="platform-icon pi-ig">i</span><span class="platform-icon pi-fb">f</span><span class="platform-icon pi-x">x</span></div>
+          <div class="stats"><span>32K</span><span class="pill up">+1.6%</span></div>
+        </div>
+      </div>
+
+      <div class="group-head"><span>Reports</span></div>
+      <div class="row">
+        <svg width="18" height="18" viewBox="0 0 20 20" fill="none" style="color:var(--sq-text-muted)"><path d="M5 3h7l3 3v11H5z" stroke="currentColor" stroke-width="1.5"/><path d="M12 3v3h3" stroke="currentColor" stroke-width="1.5"/></svg>
+        <div class="meta"><div class="name">Weekly digest</div><div class="stats">Sent every Monday</div></div>
+      </div>
+      <div class="row">
+        <svg width="18" height="18" viewBox="0 0 20 20" fill="none" style="color:var(--sq-text-muted)"><path d="M3 17V8m5 9V4m5 13V10m5 7V6" stroke="currentColor" stroke-width="1.5"/></svg>
+        <div class="meta"><div class="name">Cross-competitor posts</div><div class="stats">All sources, ranked</div></div>
+      </div>
+    </aside>
+
+    <main class="main" id="main"></main>
+  </div>
+</div>
+
+<!-- Add Competitor modal -->
+<div class="modal-mask" id="addModal">
+  <div class="modal">
+    <div class="modal-head"><h2>Add Competitor</h2><button class="close" onclick="closeAddModal()">✕</button></div>
+    <div class="modal-body">
+      <div class="field">
+        <label>Lookup by handle, name, or URL</label>
+        <input type="text" placeholder="e.g. hootsuite, @buffer, metricool.com" />
+      </div>
+      <div class="field">
+        <label>Track on platforms</label>
+        <div class="platforms">
+          <span class="opt on"><span class="platform-icon pi-ig">i</span> Instagram</span>
+          <span class="opt on"><span class="platform-icon pi-fb">f</span> Facebook</span>
+          <span class="opt"><span class="platform-icon pi-x">x</span> X / Twitter</span>
+          <span class="opt"><span class="platform-icon pi-li">l</span> LinkedIn</span>
+          <span class="opt"><span class="platform-icon pi-tt">t</span> TikTok</span>
+          <span class="opt"><span class="platform-icon pi-yt">y</span> YouTube</span>
+        </div>
+      </div>
+      <div class="hint">We'll start scraping their public posts and follower count today. Daily reports kick in once we have 7 days of data.</div>
+    </div>
+    <div class="modal-foot">
+      <span class="quota">Tracking 3 of 5 on your current plan · <a href="#">Upgrade</a></span>
+      <div class="row-flex" style="gap:8px">
+        <button class="btn-secondary" onclick="closeAddModal()">Cancel</button>
+        <button class="btn-primary" onclick="closeAddModal()">+ Add</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ============ Helpers ============ */
+const PI_LABEL = {IG:'i',FB:'f',X:'x',LI:'l',YT:'y',TT:'t'};
+const PI_CLASS = {IG:'pi-ig',FB:'pi-fb',X:'pi-x',LI:'pi-li',YT:'pi-yt',TT:'pi-tt'};
+const PLATFORM_NAME = {IG:'Instagram',FB:'Facebook',X:'X',LI:'LinkedIn',YT:'YouTube',TT:'TikTok'};
+function platformIconsHTML(arr){return arr.map(p=>`<span class="platform-icon ${PI_CLASS[p]}">${PI_LABEL[p]}</span>`).join(' ')}
+function formatN(v){if(Math.abs(v)>=1000)return (v/1000).toFixed(Math.abs(v)>=10000?0:1)+'K';return Math.round(v).toString()}
+function gradFor(p){return ({IG:'linear-gradient(135deg,#dee3ff,#c5cdff)',FB:'linear-gradient(135deg,#cfeaff,#5fa8e2)',X:'linear-gradient(135deg,#d8d8d8,#9b9b9b)',LI:'linear-gradient(135deg,#cfe5fc,#7eb1de)',YT:'linear-gradient(135deg,#fee0e0,#fbb4b4)'})[p]||'linear-gradient(135deg,#eee,#ccc)'}
+function days(n){const out=[];const d=new Date();for(let i=n-1;i>=0;i--){const x=new Date(d);x.setDate(d.getDate()-i);out.push(`${x.getDate()}/${x.getMonth()+1}`)}return out}
+function genGrowth(start, ratePct, jitterPct=0.4){
+  const out=[]; const target=start*(1+ratePct/100); const step=(target-start)/29;
+  for(let i=0;i<30;i++){const noise=(Math.random()-0.5)*(start*jitterPct/100); out.push(Math.max(0,start+step*i+noise))}
+  out[29]=target; return out;
+}
+function genEng(meanPct, jitterPct=18){
+  // engagement-rate over time, fluctuates around the mean
+  const out=[]; for(let i=0;i<30;i++){
+    const noise=(Math.random()-0.5)*meanPct*jitterPct/100*2;
+    out.push(Math.max(0.1, Math.round((meanPct+noise)*100)/100));
+  }
+  return out;
+}
+function idxNorm(s){const b=s[0]; return s.map(v=>(v/b)*100)}
+function signed(d){return d>=0?'+'+d:''+d}
+
+/* ============ Data ============ */
+const DATA = {
+  competitors: {
+    'Hootsuite': {
+      color:'#222', avatar:'H', avatarBg:'#000', avatarFg:'#fff',
+      handle:'@hootsuite', platforms:['IG','FB','X','YT'],
+      followers:340180, growthRate:-0.3, eng:1.1, engDelta:'-0.2 pp',
+      postsPerWeek:14, reels:38, topPlatform:'IG', cadence:'Mon–Fri 9am, Sun',
+      diff:[
+        'Posting 2.8× more often than you, 38% Reels.',
+        'Strong on YouTube — long-form repurposed from blog content.',
+        'Best slot is <b>Tuesday 4pm UTC</b>.',
+      ],
+      topPosts:[
+        {plat:'IG', handle:'@hootsuite', when:'2d ago', text:'"Inside our 2026 social trends report — what\'s actually working for B2B brands ↓"', likes:4820, com:312, sh:196, pill:'+412% vs avg'},
+        {plat:'FB', handle:'Hootsuite',  when:'4d ago', text:'"AI-generated captions vs hand-written: a 30-day A/B inside our team."', likes:2140, com:187, sh:96, pill:'+180%'},
+        {plat:'X',  handle:'@hootsuite', when:'5d ago', text:'"Hot take: scheduling tools that don\'t recycle evergreen are leaving 30% of reach on the table."', likes:1540, com:282, sh:340, pill:'+95%'},
+        {plat:'YT', handle:'Hootsuite',  when:'7d ago', text:'"Behind the scenes: how we ship a quarterly product launch on social."', likes:1210, com:89,  sh:54, pill:'avg'},
+      ]
+    },
+    'Sprout Social': {
+      color:'#1a8b6a', avatar:'S', avatarBg:'#1a8b6a', avatarFg:'#fff',
+      handle:'@sproutsocial', platforms:['IG','LI','X'],
+      followers:284500, growthRate:0.8, eng:2.1, engDelta:'+0.1 pp',
+      postsPerWeek:9, reels:42, topPlatform:'LI', cadence:'Tue–Thu 10am',
+      diff:[
+        'LinkedIn-first strategy — 60% of all posts.',
+        'Heavy on long-form report content with infographic carousels.',
+        'Best slot is <b>Wednesday 9am UTC</b>.',
+      ],
+      topPosts:[
+        {plat:'LI', handle:'Sprout Social', when:'1d ago', text:'"What we learned shipping Threads-only campaigns — full report."', likes:1420, com:92, sh:210, pill:'+180%'},
+        {plat:'IG', handle:'@sproutsocial', when:'3d ago', text:'"Carousel: the 8 metrics every CMO will ask you about in 2026."', likes:980, com:64, sh:34, pill:'+90%'},
+        {plat:'LI', handle:'Sprout Social', when:'4d ago', text:'"How we cut our reporting time by 40% with templated dashboards."', likes:740, com:48, sh:62, pill:'+45%'},
+        {plat:'X',  handle:'@sproutsocial', when:'6d ago', text:'"Reminder: comments-per-1k-followers is the only engagement metric worth tracking."', likes:420, com:88, sh:140, pill:'avg'},
+      ]
+    },
+    'Metricool': {
+      color:'#a8c426', avatar:'M', avatarBg:'#dfff5c', avatarFg:'#000',
+      handle:'@metricool', platforms:['IG','FB','X'],
+      followers:32040, growthRate:1.6, eng:3.4, engDelta:'+0.2 pp',
+      postsPerWeek:11, reels:58, topPlatform:'IG', cadence:'Mon–Fri 9am, Sun',
+      diff:[
+        'Posting <b>2.2×</b> more often than you, mostly Reels (58% of feed vs your 12%).',
+        'Strongest hashtag set: <code>#smm</code>, <code>#contentstrategy</code>, <code>#solopreneur</code> — none of which you currently use.',
+        'Best-performing slot is <b>Sunday 7pm UTC</b> — you have no posts scheduled then.',
+        'Engagement spike on 22 Apr coincides with a product-launch post.',
+      ],
+      topPosts:[
+        {plat:'IG', handle:'@metricool', when:'2d ago', text:'"How we picked our content cadence — and why it\'s mostly Reels in 2026."', likes:880, com:142, sh:56, pill:'+220%'},
+        {plat:'FB', handle:'Metricool',  when:'3d ago', text:'"5 myths about scheduling tools that founders still believe in 2026."', likes:612, com:38, sh:22, pill:'+90%'},
+        {plat:'X',  handle:'@metricool', when:'5d ago', text:'"Hot take: tools that don\'t recycle evergreen leave 30% of reach on the table."', likes:540, com:82, sh:140, pill:'+180%'},
+        {plat:'IG', handle:'@metricool', when:'7d ago', text:'"Behind the scenes of our March launch — Reels of the team brainstorm."', likes:410, com:33, sh:14, pill:'avg'},
+      ]
+    },
+  },
+  you: {
+    IG: {color:'#4258ff', label:'You — SmarterQueue (IG)', short:'SQ · IG', followers:28210, growthRate:1.2, eng:3.2, postsPerWeek:5},
+    X:  {color:'#7e3ff2', label:'You — SmarterQueue (X)',  short:'SQ · X',  followers:9800,  growthRate:0.5, eng:2.8, postsPerWeek:3},
+    LI: {color:'#0a66c2', label:'You — SmarterQueue (LI)', short:'SQ · LI', followers:18900, growthRate:1.8, eng:4.1, postsPerWeek:4},
+  },
+  brand:{name:'SmarterQueue', short:'You', avatar:'Q', color:'#4258ff', avatarBg:'#4258ff', avatarFg:'#fff'}
+};
+Object.values(DATA.competitors).forEach(c=>{
+  c.growth30 = genGrowth(c.followers/(1+c.growthRate/100), c.growthRate);
+  c.eng30    = genEng(c.eng);
+});
+Object.values(DATA.you).forEach(p=>{
+  p.growth30 = genGrowth(p.followers/(1+p.growthRate/100), p.growthRate);
+  p.eng30    = genEng(p.eng);
+});
+
+/* ============ Tiny SVG line chart ============ */
+function lineChart(el, series, opts={}){
+  if(!el) return;
+  const w = el.clientWidth || 600, h = el.clientHeight || 240;
+  const pad = {l:40,r:14,t:14,b:24};
+  const innerW = w - pad.l - pad.r, innerH = h - pad.t - pad.b;
+  const allVals = series.flatMap(s=>s.data);
+  if(allVals.length===0){el.innerHTML='';return}
+  const min = Math.min(...allVals), max = Math.max(...allVals);
+  const span = Math.max(1, max - min);
+  const n = series[0].data.length;
+  const x = i => pad.l + (i/(n-1))*innerW;
+  const y = v => pad.t + innerH - ((v-min)/span)*innerH;
+
+  let svg = `<svg viewBox="0 0 ${w} ${h}" width="100%" height="100%" preserveAspectRatio="none">`;
+  for(let g=0;g<=4;g++){
+    const yy = pad.t + (innerH/4)*g;
+    svg += `<line x1="${pad.l}" x2="${w-pad.r}" y1="${yy}" y2="${yy}" stroke="#eef0f6" stroke-width="1"/>`;
+    const val = max - (span/4)*g;
+    svg += `<text x="${pad.l-6}" y="${yy+4}" text-anchor="end" font-size="10" fill="#8b91a4" font-family="Inter,Arial">${formatN(val)}</text>`;
+  }
+  const ticks = [0, Math.floor(n/4), Math.floor(n/2), Math.floor(3*n/4), n-1];
+  ticks.forEach(i => {
+    svg += `<text x="${x(i)}" y="${h-6}" text-anchor="middle" font-size="10" fill="#8b91a4" font-family="Inter,Arial">${opts.xlabels?opts.xlabels[i]:'d'+i}</text>`;
+  });
+  series.forEach((s)=>{
+    const path = s.data.map((v,i)=>`${i===0?'M':'L'}${x(i).toFixed(1)},${y(v).toFixed(1)}`).join(' ');
+    if(s.area){
+      const area = path + ` L${x(n-1).toFixed(1)},${(h-pad.b).toFixed(1)} L${x(0).toFixed(1)},${(h-pad.b).toFixed(1)} Z`;
+      svg += `<path d="${area}" fill="${s.color}" opacity="0.10"/>`;
+    }
+    svg += `<path d="${path}" fill="none" stroke="${s.color}" stroke-width="${s.dashed?1.6:2.2}" stroke-linecap="round" stroke-linejoin="round" ${s.dashed?'stroke-dasharray="4 4"':''}/>`;
+    const lastX = x(n-1), lastY = y(s.data[n-1]);
+    svg += `<circle cx="${lastX}" cy="${lastY}" r="3.5" fill="${s.color}"/>`;
+    svg += `<text x="${lastX-6}" y="${lastY-7}" text-anchor="end" font-size="11" fill="${s.color}" font-weight="600" font-family="Inter,Arial">${s.label}</text>`;
+  });
+  svg += `</svg>`;
+  el.innerHTML = svg;
+}
+
+/* ============ State + render ============ */
+const state = {
+  view: 'overview',          // 'overview' | 'competitor'
+  competitor: 'Hootsuite',   // active competitor when view==='competitor'
+  overlays: new Set(['IG']), // SQ profiles to overlay on competitor chart
+};
+
+const main = document.getElementById('main');
+
+/* ---- Overview ---- */
+function viewOverview(){
+  const comps = Object.entries(DATA.competitors); // 3 entries
+  const compsAll = comps.map(([n,c])=>({name:n, c}));
+  // ranks
+  const audSorted = [...compsAll, {name:'You', c:DATA.you.IG, isYou:true}].sort((a,b)=>b.c.followers - a.c.followers);
+  const engSorted = [...compsAll, {name:'You', c:DATA.you.IG, isYou:true}].sort((a,b)=>b.c.eng - a.c.eng);
+  const actSorted = [...compsAll, {name:'You', c:DATA.you.IG, isYou:true}].sort((a,b)=>b.c.postsPerWeek - a.c.postsPerWeek);
+  const fastest = [...compsAll].sort((a,b)=>b.c.growthRate - a.c.growthRate)[0];
+  const youEngRank = engSorted.findIndex(s=>s.isYou)+1;
+  const youAudRank = audSorted.findIndex(s=>s.isYou)+1;
+
+  // bar widths normalized to max of 4 series
+  const audMax = Math.max(...audSorted.map(s=>s.c.followers));
+  const engMax = Math.max(...engSorted.map(s=>s.c.eng));
+  const actMax = Math.max(...actSorted.map(s=>s.c.postsPerWeek));
+  const audAvg = compsAll.reduce((a,s)=>a+s.c.followers,0)/compsAll.length;
+  const engAvg = compsAll.reduce((a,s)=>a+s.c.eng,0)/compsAll.length;
+  const actAvg = compsAll.reduce((a,s)=>a+s.c.postsPerWeek,0)/compsAll.length;
+  const pct = (v,m)=>Math.max(2,(v/m)*100);
+
+  function barRow(item, max, format, comparator){
+    const isYou = item.isYou;
+    const c = item.c;
+    const av = ({IG:DATA.you.IG.color})[''] || DATA.brand.color;
+    return `
+      <div class="bar-row" ${isYou?'data-self="true"':`data-comp="${item.name}"`}>
+        <div class="label ${isYou?'you':''}">
+          <div class="avatar" style="background:${isYou?'var(--sq-blue)':c.avatarBg};color:${isYou?'#fff':(c.avatarFg||'#fff')};width:22px;height:22px;font-size:11px">${isYou?'Q':c.avatar}</div>
+          <span class="name">${isYou?'You — SmarterQueue':item.name}</span>
+        </div>
+        <div class="bar-track"><div class="bar-fill ${isYou?'you':''}" style="width:${pct(comparator(c),max)}%"></div><div class="avg-line" style="left:${pct(({fol:audAvg,eng:engAvg,act:actAvg})[format],max)}%"></div></div>
+        <div class="value">${format==='fol'?formatN(c.followers):format==='eng'?c.eng+'%':c.postsPerWeek}${format==='fol'?` <span class="pill ${c.growthRate>=0?'up':'down'}">${signed(c.growthRate)}%</span>`:''}</div>
+      </div>`;
+  }
+
+  // Cross-competitor top posts (flatten all topPosts, sort by likes)
+  const allPosts = compsAll.flatMap(s => s.c.topPosts.map(p=>({...p, brand:s.name, c:s.c})));
+  allPosts.sort((a,b)=>b.likes-a.likes);
+  const topCross = allPosts.slice(0,4);
+
+  const rankPill = (rank, total, dir='up') => `<span class="pill ${dir}">#${rank} of ${total}</span>`;
+
+  main.innerHTML = `
+    <div class="ov">
+      <div class="head">
+        <div>
+          <h1>Overview</h1>
+          <div class="desc">All ${compsAll.length} tracked competitors at a glance — last 30 days.</div>
+        </div>
+        <div class="right-controls">
+          <button class="btn-secondary">Last 30 days ▾</button>
+          <button class="btn-secondary">Instagram ▾</button>
+          <button class="btn-secondary">Export ▾</button>
+        </div>
+      </div>
+
+      <div class="ov-summary">
+        <div class="summary"><div class="label">Your audience rank</div><div class="v">#${youAudRank} ${rankPill(youAudRank, audSorted.length)}</div><div class="who">28K followers · +1.2% (30d)</div></div>
+        <div class="summary"><div class="label">Your engagement rank</div><div class="v">#${youEngRank} ${rankPill(youEngRank, engSorted.length)}</div><div class="who">${DATA.you.IG.eng}% engagement rate (IG)</div></div>
+        <div class="summary"><div class="label">Fastest grower</div><div class="v">${fastest.name}</div><div class="who">+${fastest.c.growthRate}% followers (30d)</div></div>
+        <div class="summary"><div class="label">Most active</div><div class="v">Hootsuite</div><div class="who">14 posts/week</div></div>
+      </div>
+
+      <div class="ov-leaderboards">
+        <div class="panel-padded lead-card">
+          <div class="titlebar"><h3>📈 Audience</h3><div class="legend">vertical line = avg</div></div>
+          ${audSorted.map(s=>barRow(s,audMax,'fol',c=>c.followers)).join('')}
+        </div>
+        <div class="panel-padded lead-card">
+          <div class="titlebar"><h3>💬 Engagement rate</h3><div class="legend">avg ${engAvg.toFixed(1)}%</div></div>
+          ${engSorted.map(s=>barRow(s,engMax,'eng',c=>c.eng)).join('')}
+        </div>
+        <div class="panel-padded lead-card">
+          <div class="titlebar"><h3>📅 Posts / week</h3><div class="legend">avg ${actAvg.toFixed(1)}</div></div>
+          ${actSorted.map(s=>barRow(s,actMax,'act',c=>c.postsPerWeek)).join('')}
+        </div>
+      </div>
+
+      <div class="panel-padded cross-posts">
+        <div class="titlebar"><h3>🏆 Top posts this week — cross-competitor</h3><div class="legend">ranked by likes · click any post to open the source</div></div>
+        <div class="grid">
+          ${topCross.map(p=>`
+            <div class="post-row">
+              <div class="thumb" style="background:${gradFor(p.plat)}"></div>
+              <div class="body">
+                <div class="row-flex" style="margin-bottom:4px"><span class="platform-icon ${PI_CLASS[p.plat]}">${PI_LABEL[p.plat]}</span><b>${p.handle}</b><span class="muted small">· ${p.when}</span><span class="pill ${p.pill==='avg'?'neutral':'up'}" style="margin-left:auto">${p.pill}</span></div>
+                <div class="text">${p.text}</div>
+                <div class="muted small" style="margin-top:6px">❤ <b style="color:var(--sq-text)">${p.likes.toLocaleString()}</b> · 💬 ${p.com} · ↗ ${p.sh}</div>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+
+      <div class="panel-padded">
+        <div class="titlebar"><h3>📈 Normalized follower growth — last 30 days</h3><div class="legend">indexed to 100 at start of period</div></div>
+        <div class="chart-wrap big" id="ov-chart"></div>
+      </div>
+    </div>
+  `;
+
+  // chart
+  const series = [];
+  Object.entries(DATA.competitors).forEach(([n,c])=>{
+    series.push({label:n, color:c.color, data:idxNorm(c.growth30)});
+  });
+  series.push({label:'You', color:DATA.you.IG.color, data:idxNorm(DATA.you.IG.growth30)});
+  lineChart(document.getElementById('ov-chart'), series, {xlabels:days(30)});
+
+  // bar-row click → drill in
+  main.querySelectorAll('.bar-row[data-comp]').forEach(r=>{
+    r.addEventListener('click', ()=>{ state.view='competitor'; state.competitor=r.dataset.comp; render(); });
+  });
+}
+
+/* ---- Competitor detail ---- */
+function viewCompetitor(){
+  const c = DATA.competitors[state.competitor];
+  const youIG = DATA.you.IG;
+  if(!c){state.view='overview';return render()}
+
+  const overlayBtn = (p)=>{
+    const on = state.overlays.has(p);
+    return `<button class="toggle ${on?'on':''}" data-profile="${p}"><span class="dot"></span>SmarterQueue (${p})</button>`;
+  };
+
+  const followerGap = c.followers - youIG.followers;
+  const engGap = c.eng - youIG.eng;
+  const postGap = c.postsPerWeek - youIG.postsPerWeek;
+
+  const avgLikesC = Math.round(c.followers*c.eng/100*0.4);
+  const avgLikesY = Math.round(youIG.followers*youIG.eng/100*0.4);
+  const avgComC = Math.round(avgLikesC*0.08);
+  const avgComY = Math.round(avgLikesY*0.08);
+  const tableRows = [
+    ['Followers', c.followers.toLocaleString(), youIG.followers.toLocaleString(), (followerGap>=0?'−':'+')+Math.abs(followerGap).toLocaleString()],
+    ['Avg likes / post', avgLikesC.toLocaleString(), avgLikesY.toLocaleString(), (avgLikesC-avgLikesY>=0?'−':'+')+Math.abs(avgLikesC-avgLikesY).toLocaleString()],
+    ['Avg comments / post', avgComC, avgComY, (avgComC-avgComY>=0?'−':'+')+Math.abs(avgComC-avgComY)],
+    ['Engagement rate', c.eng+'%', youIG.eng+'%', (engGap>=0?'−':'+')+Math.abs(engGap).toFixed(1)+' pp'],
+    ['Posts / week', c.postsPerWeek, youIG.postsPerWeek, (postGap>=0?'−':'+')+Math.abs(postGap)],
+    ['Posting cadence', c.cadence, 'Tue/Thu 11am', '—'],
+    ['Reels share', c.reels+'%', '12%', (c.reels-12>=0?'−':'+')+Math.abs(c.reels-12)+' pp'],
+  ];
+
+  main.innerHTML = `
+    <div class="det">
+      <div class="breadcrumb"><a href="#" data-back="1">Discover</a> · <a href="#" data-back="1">Competitors</a> · <a href="#" data-back="1">Overview</a> · <span>${state.competitor}</span></div>
+      <div class="profile-head">
+        <div class="pa" style="background:${c.avatarBg};color:${c.avatarFg||'#fff'}">${c.avatar}</div>
+        <div>
+          <h1>${state.competitor} <span class="competitor-tag">Competitor</span> ${platformIconsHTML(c.platforms)}</h1>
+          <div class="handle">${c.handle} · ${c.platforms.length} platforms tracked · last scrape 2h ago</div>
+        </div>
+        <div class="actions">
+          <button class="btn-secondary">Instagram ▾</button>
+          <button class="btn-secondary">Last 30 days ▾</button>
+          <button class="btn-secondary">Schedule report</button>
+          <button class="btn-secondary">Export</button>
+        </div>
+      </div>
+
+      <div class="overlay-bar">
+        <span class="lbl">Compare with</span>
+        ${overlayBtn('IG')} ${overlayBtn('X')} ${overlayBtn('LI')}
+      </div>
+
+      <div class="stat-grid">
+        <div class="stat"><div class="l">Followers</div><div class="v">${formatN(c.followers)} <span class="pill ${c.growthRate>=0?'up':'down'}">${signed(c.growthRate)}%</span></div><div class="vs">You: <b>${formatN(youIG.followers)}</b> · gap ${followerGap>=0?'−':'+'}${formatN(Math.abs(followerGap))}</div></div>
+        <div class="stat"><div class="l">Engagement Rate</div><div class="v">${c.eng}% <span class="pill ${c.engDelta.startsWith('-')?'down':'up'}">${c.engDelta}</span></div><div class="vs">You: <b>${youIG.eng}%</b> · gap ${engGap>=0?'−':'+'}${Math.abs(engGap).toFixed(1)} pp</div></div>
+        <div class="stat"><div class="l">Posts / week</div><div class="v">${c.postsPerWeek} <span class="pill neutral">—</span></div><div class="vs">You: <b>${youIG.postsPerWeek}</b> · gap ${postGap>=0?'−':'+'}${Math.abs(postGap)}</div></div>
+      </div>
+
+      <div class="panel-padded">
+        <div class="titlebar">
+          <h3>📈 Follower growth</h3>
+          <div class="legend">Toggle SmarterQueue buttons above to overlay your profiles</div>
+        </div>
+        <div class="chart-wrap" id="det-chart"></div>
+      </div>
+
+      <div class="panel-padded">
+        <div class="titlebar">
+          <h3>💬 Engagement rate over time <span class="muted small" style="font-weight:500">(% of followers per post)</span></h3>
+          <div class="legend">Same overlay toggles apply</div>
+        </div>
+        <div class="chart-wrap" id="det-eng-chart"></div>
+      </div>
+
+      <div class="det-grid">
+        <div class="panel-padded">
+          <h3 style="margin:0 0 10px">Side-by-side metrics</h3>
+          <table class="compare-table">
+            <thead><tr><th>Metric</th><th>${state.competitor}</th><th>You</th><th>Δ</th></tr></thead>
+            <tbody>
+              ${tableRows.map(r=>`<tr><td>${r[0]}</td><td>${r[1]}</td><td class="you">${r[2]}</td><td>${r[3]}</td></tr>`).join('')}
+            </tbody>
+          </table>
+        </div>
+        <div class="panel-padded top-posts">
+          <div class="titlebar" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+            <h3 style="margin:0">Their top posts (30d)</h3>
+            <a href="#" class="small">View all →</a>
+          </div>
+          ${c.topPosts.map(p=>`
+            <div class="post-card">
+              <div class="thumb" style="background:${gradFor(p.plat)}"></div>
+              <div class="body">
+                <div class="row-flex" style="margin-bottom:2px"><span class="platform-icon ${PI_CLASS[p.plat]}">${PI_LABEL[p.plat]}</span><b>${p.handle}</b><span class="muted small">${p.when}</span></div>
+                <div class="text">${p.text}</div>
+                <div class="stats"><span>❤ ${p.likes.toLocaleString()}</span><span>💬 ${p.com}</span><span class="pill ${p.pill==='avg'?'neutral':'up'}">${p.pill}</span></div>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+
+      <div class="panel-padded">
+        <div class="titlebar" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+          <h3 style="margin:0">What they're doing differently</h3>
+          <span class="muted small">auto-generated from last 30 days</span>
+        </div>
+        <ul style="margin:0;padding-left:18px;line-height:1.6">
+          ${c.diff.map(li=>`<li>${li}</li>`).join('')}
+        </ul>
+      </div>
+    </div>
+  `;
+
+  // follower-growth chart
+  const growthSeries = [{label:state.competitor, color:c.color, data:c.growth30, area:true}];
+  ['IG','X','LI'].forEach(p=>{
+    if(state.overlays.has(p)){
+      const yp = DATA.you[p];
+      growthSeries.push({label:yp.short, color:yp.color, data:yp.growth30, dashed:true});
+    }
+  });
+  lineChart(document.getElementById('det-chart'), growthSeries, {xlabels:days(30)});
+
+  // engagement-rate-over-time chart (second chart per competitor)
+  const engSeries = [{label:state.competitor, color:c.color, data:c.eng30, area:true}];
+  ['IG','X','LI'].forEach(p=>{
+    if(state.overlays.has(p)){
+      const yp = DATA.you[p];
+      engSeries.push({label:yp.short, color:yp.color, data:yp.eng30, dashed:true});
+    }
+  });
+  lineChart(document.getElementById('det-eng-chart'), engSeries, {xlabels:days(30)});
+
+  // overlay toggle clicks
+  main.querySelectorAll('.overlay-bar .toggle[data-profile]').forEach(b=>{
+    b.addEventListener('click', ()=>{
+      const p = b.dataset.profile;
+      if(state.overlays.has(p)) state.overlays.delete(p); else state.overlays.add(p);
+      render();
+    });
+  });
+
+  // breadcrumb back
+  main.querySelectorAll('[data-back="1"]').forEach(a=>{
+    a.addEventListener('click', e=>{e.preventDefault(); state.view='overview'; render()});
+  });
+}
+
+/* ---- Sidebar selection sync ---- */
+function syncSidebar(){
+  document.querySelectorAll('.sidebar .row[data-view]').forEach(r=>{
+    const v = r.dataset.view, n = r.dataset.comp;
+    const isActive = (v==='overview' && state.view==='overview') ||
+                     (v==='competitor' && state.view==='competitor' && n===state.competitor);
+    r.classList.toggle('active', isActive);
+  });
+}
+
+/* ---- Render dispatcher ---- */
+function render(){
+  syncSidebar();
+  if(state.view==='overview') viewOverview();
+  else viewCompetitor();
+  // re-draw on resize requires re-render
+}
+
+/* ---- Wire static sidebar clicks ---- */
+document.querySelectorAll('.sidebar .row[data-view]').forEach(r=>{
+  r.addEventListener('click', ()=>{
+    state.view = r.dataset.view;
+    if(state.view === 'competitor') state.competitor = r.dataset.comp;
+    render();
+  });
+});
+
+/* ---- Add modal ---- */
+function openAddModal(){document.getElementById('addModal').classList.add('open')}
+function closeAddModal(){document.getElementById('addModal').classList.remove('open')}
+document.getElementById('addModal').addEventListener('click', e=>{if(e.target.id==='addModal') closeAddModal()});
+
+/* ---- Init + resize ---- */
+window.addEventListener('resize', ()=>render());
+render();
+</script>
+</body>
+</html>
