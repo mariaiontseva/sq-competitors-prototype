@@ -166,7 +166,7 @@
   .summary .v .pill{font-size:11px;align-self:center}
   .summary .who{font-size:12px;color:var(--sq-text-muted);margin-top:6px}
 
-  .ov-leaderboards{display:grid;grid-template-columns:repeat(auto-fit,minmax(380px,1fr));gap:16px}
+  .ov-leaderboards{display:grid;grid-template-columns:repeat(auto-fit,minmax(420px,1fr));gap:16px}
   .ov-full{grid-column:1 / -1}
   .lead-card{padding:22px 24px}
   .lead-card .titlebar{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid var(--sq-border);gap:8px}
@@ -181,8 +181,7 @@
   .bar-row .label.you{color:var(--sq-blue);font-weight:700}
   .bar-row .label .avatar{width:26px;height:26px;font-size:12px;border-radius:6px}
   .bar-track{height:16px;background:var(--sq-bg);border-radius:99px;position:relative;overflow:hidden}
-  .bar-fill{height:100%;border-radius:99px;background:linear-gradient(90deg,#a4adf3,#5f6cd6)}
-  .bar-fill.you{background:linear-gradient(90deg,#7e3ff2,#4258ff)}
+  .bar-fill{height:100%;border-radius:99px;background:#5f6cd6}
   .bar-row .value{font-variant-numeric:tabular-nums;font-weight:700;font-size:14px;text-align:right;display:flex;justify-content:flex-end;gap:8px;align-items:baseline}
   .avg-line{position:absolute;top:-4px;bottom:-4px;width:2px;background:var(--sq-text-faint);opacity:.55}
 
@@ -584,14 +583,15 @@ function viewOverview(){
   function barRow(item, max, format, comparator){
     const isYou = item.isYou;
     const c = item.c;
-    const av = ({IG:DATA.you.IG.color})[''] || DATA.brand.color;
+    const barColor = isYou ? '#4258ff' : c.color;
+    const avgPct = pct(({fol:audAvg,eng:engAvg,act:actAvg})[format], max);
     return `
       <div class="bar-row" ${isYou?'data-self="true"':`data-comp="${item.name}"`}>
         <div class="label ${isYou?'you':''}">
           <div class="avatar" style="background:${isYou?'var(--sq-blue)':c.avatarBg};color:${isYou?'#fff':(c.avatarFg||'#fff')};width:22px;height:22px;font-size:11px">${isYou?'Q':c.avatar}</div>
           <span class="name">${isYou?'You — SmarterQueue':item.name}</span>
         </div>
-        <div class="bar-track"><div class="bar-fill ${isYou?'you':''}" style="width:${pct(comparator(c),max)}%"></div><div class="avg-line" style="left:${pct(({fol:audAvg,eng:engAvg,act:actAvg})[format],max)}%"></div></div>
+        <div class="bar-track"><div class="bar-fill" style="width:${pct(comparator(c),max)}%;background:${barColor}"></div><div class="avg-line" style="left:${avgPct}%"></div></div>
         <div class="value">${format==='fol'?formatN(c.followers):format==='eng'?c.eng+'%':c.postsPerWeek}${format==='fol'?` <span class="pill ${c.growthRate>=0?'up':'down'}">${signed(c.growthRate)}%</span>`:''}</div>
       </div>`;
   }
@@ -626,16 +626,12 @@ function viewOverview(){
 
       <div class="ov-leaderboards">
         <div class="panel-padded lead-card">
-          <div class="titlebar"><h3>📈 Audience</h3><div class="legend">vertical line = avg</div></div>
+          <div class="titlebar"><h3>📈 Audience</h3><div class="legend">vertical line = avg · click row to drill in</div></div>
           ${audSorted.map(s=>barRow(s,audMax,'fol',c=>c.followers)).join('')}
         </div>
         <div class="panel-padded lead-card">
           <div class="titlebar"><h3>💬 Engagement rate</h3><div class="legend">avg ${engAvg.toFixed(1)}%</div></div>
           ${engSorted.map(s=>barRow(s,engMax,'eng',c=>c.eng)).join('')}
-        </div>
-        <div class="panel-padded lead-card">
-          <div class="titlebar"><h3>📅 Posts / week</h3><div class="legend">avg ${actAvg.toFixed(1)}</div></div>
-          ${actSorted.map(s=>barRow(s,actMax,'act',c=>c.postsPerWeek)).join('')}
         </div>
       </div>
 
