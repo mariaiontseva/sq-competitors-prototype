@@ -173,17 +173,30 @@
   .lead-card h3{margin:0;font-size:14px;font-weight:700;letter-spacing:-0.01em;display:flex;align-items:center;gap:8px}
   .lead-card .legend{font-size:11px;color:var(--sq-text-muted);font-weight:500}
 
-  .bar-row{display:grid;grid-template-columns:170px 1fr 120px;gap:16px;align-items:center;padding:13px 6px;border-bottom:1px dashed var(--sq-border);cursor:pointer;border-radius:6px;margin:0 -6px;transition:background .12s}
-  .bar-row:last-child{border-bottom:0}
-  .bar-row:hover{background:#f3f6ff}
-  .bar-row .label{display:flex;align-items:center;gap:9px;font-size:13.5px;font-weight:500;min-width:0}
-  .bar-row .label .name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  .bar-row .label.you{color:var(--sq-blue);font-weight:700}
-  .bar-row .label .avatar{width:26px;height:26px;font-size:12px;border-radius:6px}
-  .bar-track{height:16px;background:var(--sq-bg);border-radius:99px;position:relative;overflow:hidden}
-  .bar-fill{height:100%;border-radius:99px;background:#5f6cd6}
-  .bar-row .value{font-variant-numeric:tabular-nums;font-weight:700;font-size:14px;text-align:right;display:flex;justify-content:flex-end;gap:8px;align-items:baseline}
-  .avg-line{position:absolute;top:-4px;bottom:-4px;width:2px;background:var(--sq-text-faint);opacity:.55}
+  /* leaderboard / posts data tables */
+  .data-table{width:100%;border-collapse:collapse}
+  .data-table th{text-align:left;font-weight:700;color:var(--sq-text-faint);font-size:10.5px;text-transform:uppercase;letter-spacing:.07em;padding:10px 12px;border-bottom:1px solid var(--sq-border);white-space:nowrap}
+  .data-table th.num{text-align:right}
+  .data-table tbody tr{transition:background .1s}
+  .data-table tbody tr[data-comp]{cursor:pointer}
+  .data-table tbody tr[data-comp]:hover{background:#f3f6ff}
+  .data-table tbody tr.you{background:#f3f5ff}
+  .data-table tbody tr.you:hover{background:#e9eeff}
+  .data-table td{padding:14px 12px;border-bottom:1px solid var(--sq-border);font-size:14px;vertical-align:middle}
+  .data-table tbody tr:last-child td{border-bottom:0}
+  .data-table td.rank{color:var(--sq-text-faint);font-weight:700;width:36px;font-variant-numeric:tabular-nums}
+  .data-table td.num{text-align:right;font-variant-numeric:tabular-nums;font-weight:600;white-space:nowrap}
+  .data-table tr.you td{color:var(--sq-blue);font-weight:600}
+  .data-table tr.you td.rank{color:var(--sq-blue)}
+  .data-table .brand-cell{display:flex;align-items:center;gap:11px;min-width:0}
+  .data-table .brand-cell .avatar{width:28px;height:28px;font-size:12px;border-radius:6px;flex-shrink:0}
+  .data-table .brand-cell .name{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .data-table .post-cell{display:flex;gap:14px;align-items:flex-start;min-width:0}
+  .data-table .post-cell .thumb{width:54px;height:54px;border-radius:8px;flex-shrink:0}
+  .data-table .post-cell .body{flex:1;min-width:0}
+  .data-table .post-cell .text{font-size:13px;line-height:1.45;color:var(--sq-text);font-weight:500;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .data-table .post-cell .meta{font-size:11px;color:var(--sq-text-muted);margin-top:5px;display:flex;align-items:center;gap:6px}
+  .data-table .post-cell .meta b{color:var(--sq-text);font-weight:600}
 
   .cross-posts .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
   .cross-posts .post-row{display:flex;gap:14px;padding:14px;border:1px solid var(--sq-border);border-radius:8px;background:#fdfdff;transition:background .12s,border-color .12s}
@@ -571,30 +584,18 @@ function viewOverview(){
   const youEngRank = engSorted.findIndex(s=>s.isYou)+1;
   const youAudRank = audSorted.findIndex(s=>s.isYou)+1;
 
-  // bar widths normalized to max of 4 series
-  const audMax = Math.max(...audSorted.map(s=>s.c.followers));
-  const engMax = Math.max(...engSorted.map(s=>s.c.eng));
-  const actMax = Math.max(...actSorted.map(s=>s.c.postsPerWeek));
-  const audAvg = compsAll.reduce((a,s)=>a+s.c.followers,0)/compsAll.length;
   const engAvg = compsAll.reduce((a,s)=>a+s.c.eng,0)/compsAll.length;
   const actAvg = compsAll.reduce((a,s)=>a+s.c.postsPerWeek,0)/compsAll.length;
-  const pct = (v,m)=>Math.max(2,(v/m)*100);
 
-  function barRow(item, max, format, comparator){
-    const isYou = item.isYou;
-    const c = item.c;
-    const barColor = isYou ? '#4258ff' : c.color;
-    const avgPct = pct(({fol:audAvg,eng:engAvg,act:actAvg})[format], max);
+  function brandCell(item){
+    const isYou = item.isYou; const c = item.c;
     return `
-      <div class="bar-row" ${isYou?'data-self="true"':`data-comp="${item.name}"`}>
-        <div class="label ${isYou?'you':''}">
-          <div class="avatar" style="background:${isYou?'var(--sq-blue)':c.avatarBg};color:${isYou?'#fff':(c.avatarFg||'#fff')};width:22px;height:22px;font-size:11px">${isYou?'Q':c.avatar}</div>
-          <span class="name">${isYou?'You — SmarterQueue':item.name}</span>
-        </div>
-        <div class="bar-track"><div class="bar-fill" style="width:${pct(comparator(c),max)}%;background:${barColor}"></div><div class="avg-line" style="left:${avgPct}%"></div></div>
-        <div class="value">${format==='fol'?formatN(c.followers):format==='eng'?c.eng+'%':c.postsPerWeek}${format==='fol'?` <span class="pill ${c.growthRate>=0?'up':'down'}">${signed(c.growthRate)}%</span>`:''}</div>
+      <div class="brand-cell">
+        <div class="avatar" style="background:${isYou?'var(--sq-blue)':c.avatarBg};color:${isYou?'#fff':(c.avatarFg||'#fff')}">${isYou?'Q':c.avatar}</div>
+        <span class="name">${isYou?'You — SmarterQueue':item.name}</span>
       </div>`;
   }
+  function rowAttrs(item){return item.isYou ? 'class="you"' : `data-comp="${item.name}"`}
 
   // Cross-competitor top posts (flatten all topPosts, sort by likes)
   const allPosts = compsAll.flatMap(s => s.c.topPosts.map(p=>({...p, brand:s.name, c:s.c})));
@@ -625,30 +626,62 @@ function viewOverview(){
       </div>
 
       <div class="ov-leaderboards">
-        <div class="panel-padded lead-card">
-          <div class="titlebar"><h3>📈 Audience</h3><div class="legend">vertical line = avg · click row to drill in</div></div>
-          ${audSorted.map(s=>barRow(s,audMax,'fol',c=>c.followers)).join('')}
+        <div class="panel-padded">
+          <div class="titlebar"><h3>📈 Audience</h3><div class="legend">click row to drill in</div></div>
+          <table class="data-table">
+            <thead><tr><th>#</th><th>Brand</th><th class="num">Followers</th><th class="num">30d Δ</th></tr></thead>
+            <tbody>
+              ${audSorted.map((s,i)=>`
+                <tr ${rowAttrs(s)}>
+                  <td class="rank">${i+1}</td>
+                  <td>${brandCell(s)}</td>
+                  <td class="num">${formatN(s.c.followers)}</td>
+                  <td class="num"><span class="pill ${s.c.growthRate>=0?'up':'down'}">${signed(s.c.growthRate)}%</span></td>
+                </tr>`).join('')}
+            </tbody>
+          </table>
         </div>
-        <div class="panel-padded lead-card">
+        <div class="panel-padded">
           <div class="titlebar"><h3>💬 Engagement rate</h3><div class="legend">avg ${engAvg.toFixed(1)}%</div></div>
-          ${engSorted.map(s=>barRow(s,engMax,'eng',c=>c.eng)).join('')}
+          <table class="data-table">
+            <thead><tr><th>#</th><th>Brand</th><th class="num">Eng. rate</th><th class="num">Posts / wk</th></tr></thead>
+            <tbody>
+              ${engSorted.map((s,i)=>`
+                <tr ${rowAttrs(s)}>
+                  <td class="rank">${i+1}</td>
+                  <td>${brandCell(s)}</td>
+                  <td class="num">${s.c.eng}%</td>
+                  <td class="num">${s.c.postsPerWeek}</td>
+                </tr>`).join('')}
+            </tbody>
+          </table>
         </div>
       </div>
 
-      <div class="panel-padded cross-posts">
-        <div class="titlebar"><h3>🏆 Top posts this week — cross-competitor</h3><div class="legend">ranked by likes · click any post to open the source</div></div>
-        <div class="grid">
-          ${topCross.map(p=>`
-            <div class="post-row">
-              <div class="thumb" style="background:${gradFor(p.plat)}"></div>
-              <div class="body">
-                <div class="row-flex" style="margin-bottom:4px"><span class="platform-icon ${PI_CLASS[p.plat]}">${PI_LABEL[p.plat]}</span><b>${p.handle}</b><span class="muted small">· ${p.when}</span><span class="pill ${p.pill==='avg'?'neutral':'up'}" style="margin-left:auto">${p.pill}</span></div>
-                <div class="text">${p.text}</div>
-                <div class="muted small" style="margin-top:6px">❤ <b style="color:var(--sq-text)">${p.likes.toLocaleString()}</b> · 💬 ${p.com} · ↗ ${p.sh}</div>
-              </div>
-            </div>
-          `).join('')}
-        </div>
+      <div class="panel-padded">
+        <div class="titlebar"><h3>🏆 Top posts this week — cross-competitor</h3><div class="legend">ranked by likes · click any row to open</div></div>
+        <table class="data-table">
+          <thead><tr><th>#</th><th>Post</th><th class="num">❤ Likes</th><th class="num">💬 Comments</th><th class="num">↗ Shares</th><th class="num">vs avg</th></tr></thead>
+          <tbody>
+            ${topCross.map((p,i)=>`
+              <tr>
+                <td class="rank">${i+1}</td>
+                <td>
+                  <div class="post-cell">
+                    <div class="thumb" style="background:${gradFor(p.plat)}"></div>
+                    <div class="body">
+                      <div class="text">${p.text}</div>
+                      <div class="meta"><span class="platform-icon ${PI_CLASS[p.plat]}">${PI_LABEL[p.plat]}</span><b>${p.handle}</b><span>· ${p.when}</span></div>
+                    </div>
+                  </div>
+                </td>
+                <td class="num">${p.likes.toLocaleString()}</td>
+                <td class="num">${p.com}</td>
+                <td class="num">${p.sh}</td>
+                <td class="num"><span class="pill ${p.pill==='avg'?'neutral':'up'}">${p.pill}</span></td>
+              </tr>`).join('')}
+          </tbody>
+        </table>
       </div>
 
       <div class="panel-padded">
@@ -666,8 +699,8 @@ function viewOverview(){
   series.push({label:'You', color:DATA.you.IG.color, data:idxNorm(DATA.you.IG.growth30)});
   lineChart(document.getElementById('ov-chart'), series, {xlabels:days(30)});
 
-  // bar-row click → drill in
-  main.querySelectorAll('.bar-row[data-comp]').forEach(r=>{
+  // table-row click → drill in
+  main.querySelectorAll('.data-table tr[data-comp]').forEach(r=>{
     r.addEventListener('click', ()=>{ state.view='competitor'; state.competitor=r.dataset.comp; render(); });
   });
 }
@@ -745,23 +778,33 @@ function viewCompetitor(){
         <div class="chart-wrap" id="det-eng-chart"></div>
       </div>
 
-      <div class="panel-padded top-posts">
+      <div class="panel-padded">
         <div class="titlebar">
           <h3>🏆 Their top posts (30d)</h3>
           <a href="#" class="legend">View all →</a>
         </div>
-        <div class="post-grid">
-          ${c.topPosts.map(p=>`
-            <div class="post-card">
-              <div class="thumb" style="background:${gradFor(p.plat)}"></div>
-              <div class="body">
-                <div class="row-flex" style="margin-bottom:2px"><span class="platform-icon ${PI_CLASS[p.plat]}">${PI_LABEL[p.plat]}</span><b>${p.handle}</b><span class="muted small">· ${p.when}</span><span class="pill ${p.pill==='avg'?'neutral':'up'}" style="margin-left:auto">${p.pill}</span></div>
-                <div class="text">${p.text}</div>
-                <div class="stats"><span>❤ <b style="color:var(--sq-text)">${p.likes.toLocaleString()}</b></span><span>💬 ${p.com}</span><span>↗ ${p.sh}</span></div>
-              </div>
-            </div>
-          `).join('')}
-        </div>
+        <table class="data-table">
+          <thead><tr><th>#</th><th>Post</th><th class="num">❤ Likes</th><th class="num">💬 Comments</th><th class="num">↗ Shares</th><th class="num">vs avg</th></tr></thead>
+          <tbody>
+            ${c.topPosts.map((p,i)=>`
+              <tr>
+                <td class="rank">${i+1}</td>
+                <td>
+                  <div class="post-cell">
+                    <div class="thumb" style="background:${gradFor(p.plat)}"></div>
+                    <div class="body">
+                      <div class="text">${p.text}</div>
+                      <div class="meta"><span class="platform-icon ${PI_CLASS[p.plat]}">${PI_LABEL[p.plat]}</span><b>${p.handle}</b><span>· ${p.when}</span></div>
+                    </div>
+                  </div>
+                </td>
+                <td class="num">${p.likes.toLocaleString()}</td>
+                <td class="num">${p.com}</td>
+                <td class="num">${p.sh}</td>
+                <td class="num"><span class="pill ${p.pill==='avg'?'neutral':'up'}">${p.pill}</span></td>
+              </tr>`).join('')}
+          </tbody>
+        </table>
       </div>
 
       <div class="det-grid">
