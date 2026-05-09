@@ -166,7 +166,7 @@
   .summary .v .pill{font-size:11px;align-self:center}
   .summary .who{font-size:12px;color:var(--sq-text-muted);margin-top:6px}
 
-  .ov-leaderboards{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+  .ov-leaderboards{display:grid;grid-template-columns:repeat(auto-fit,minmax(380px,1fr));gap:16px}
   .ov-full{grid-column:1 / -1}
   .lead-card{padding:22px 24px}
   .lead-card .titlebar{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid var(--sq-border);gap:8px}
@@ -223,7 +223,7 @@
   .stat .vs{font-size:12px;color:var(--sq-text-muted);margin-top:10px;padding-top:10px;border-top:1px dashed var(--sq-border)}
   .stat .vs b{color:var(--sq-text)}
 
-  .det-grid{display:grid;grid-template-columns:1.4fr 1fr;gap:18px}
+  .det-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(420px,1fr));gap:18px}
   .det-full{grid-column:1 / -1}
 
   .compare-table{width:100%;border-collapse:collapse}
@@ -233,12 +233,12 @@
   .compare-table td.you{background:#f3f5ff;font-weight:600}
   .compare-table td:nth-child(4){font-variant-numeric:tabular-nums;color:var(--sq-text-muted);font-weight:600}
 
-  .top-posts .post-card{display:flex;gap:14px;padding:14px 0;border-bottom:1px solid var(--sq-border)}
-  .top-posts .post-card:last-child{border-bottom:0;padding-bottom:0}
-  .top-posts .post-card:first-child{padding-top:0}
-  .top-posts .thumb{width:54px;height:54px;border-radius:8px;flex-shrink:0}
+  .top-posts .post-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:14px}
+  .top-posts .post-card{display:flex;gap:14px;padding:14px;border:1px solid var(--sq-border);border-radius:8px;background:#fdfdff;transition:background .12s,border-color .12s}
+  .top-posts .post-card:hover{background:#f3f6ff;border-color:#bcc6ff;cursor:pointer}
+  .top-posts .thumb{width:60px;height:60px;border-radius:8px;flex-shrink:0;align-self:flex-start}
   .top-posts .body{flex:1;min-width:0}
-  .top-posts .body .text{font-size:13px;line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;color:var(--sq-text)}
+  .top-posts .body .text{font-size:13px;line-height:1.45;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;color:var(--sq-text);margin-top:4px}
   .top-posts .body .stats{display:flex;gap:14px;font-size:11px;color:var(--sq-text-muted);margin-top:6px;align-items:center}
 
   /* ---------- Modal ---------- */
@@ -749,9 +749,31 @@ function viewCompetitor(){
         <div class="chart-wrap" id="det-eng-chart"></div>
       </div>
 
+      <div class="panel-padded top-posts">
+        <div class="titlebar">
+          <h3>🏆 Their top posts (30d)</h3>
+          <a href="#" class="legend">View all →</a>
+        </div>
+        <div class="post-grid">
+          ${c.topPosts.map(p=>`
+            <div class="post-card">
+              <div class="thumb" style="background:${gradFor(p.plat)}"></div>
+              <div class="body">
+                <div class="row-flex" style="margin-bottom:2px"><span class="platform-icon ${PI_CLASS[p.plat]}">${PI_LABEL[p.plat]}</span><b>${p.handle}</b><span class="muted small">· ${p.when}</span><span class="pill ${p.pill==='avg'?'neutral':'up'}" style="margin-left:auto">${p.pill}</span></div>
+                <div class="text">${p.text}</div>
+                <div class="stats"><span>❤ <b style="color:var(--sq-text)">${p.likes.toLocaleString()}</b></span><span>💬 ${p.com}</span><span>↗ ${p.sh}</span></div>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+
       <div class="det-grid">
         <div class="panel-padded">
-          <h3 style="margin:0 0 10px">Side-by-side metrics</h3>
+          <div class="titlebar">
+            <h3>📊 Side-by-side metrics</h3>
+            <span class="legend">${state.competitor} vs You</span>
+          </div>
           <table class="compare-table">
             <thead><tr><th>Metric</th><th>${state.competitor}</th><th>You</th><th>Δ</th></tr></thead>
             <tbody>
@@ -759,32 +781,15 @@ function viewCompetitor(){
             </tbody>
           </table>
         </div>
-        <div class="panel-padded top-posts">
-          <div class="titlebar" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
-            <h3 style="margin:0">Their top posts (30d)</h3>
-            <a href="#" class="small">View all →</a>
+        <div class="panel-padded">
+          <div class="titlebar">
+            <h3>💡 What they're doing differently</h3>
+            <span class="legend">auto-generated · last 30d</span>
           </div>
-          ${c.topPosts.map(p=>`
-            <div class="post-card">
-              <div class="thumb" style="background:${gradFor(p.plat)}"></div>
-              <div class="body">
-                <div class="row-flex" style="margin-bottom:2px"><span class="platform-icon ${PI_CLASS[p.plat]}">${PI_LABEL[p.plat]}</span><b>${p.handle}</b><span class="muted small">${p.when}</span></div>
-                <div class="text">${p.text}</div>
-                <div class="stats"><span>❤ ${p.likes.toLocaleString()}</span><span>💬 ${p.com}</span><span class="pill ${p.pill==='avg'?'neutral':'up'}">${p.pill}</span></div>
-              </div>
-            </div>
-          `).join('')}
+          <ul style="margin:0;padding-left:18px;line-height:1.7">
+            ${c.diff.map(li=>`<li style="margin-bottom:6px">${li}</li>`).join('')}
+          </ul>
         </div>
-      </div>
-
-      <div class="panel-padded">
-        <div class="titlebar" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
-          <h3 style="margin:0">What they're doing differently</h3>
-          <span class="muted small">auto-generated from last 30 days</span>
-        </div>
-        <ul style="margin:0;padding-left:18px;line-height:1.6">
-          ${c.diff.map(li=>`<li>${li}</li>`).join('')}
-        </ul>
       </div>
     </div>
   `;
