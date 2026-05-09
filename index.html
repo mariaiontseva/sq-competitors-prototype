@@ -175,21 +175,21 @@
 
   /* leaderboard / posts data tables */
   .data-table{width:100%;border-collapse:collapse}
-  .data-table th{text-align:left;font-weight:700;color:var(--sq-text-faint);font-size:10.5px;text-transform:uppercase;letter-spacing:.07em;padding:10px 12px;border-bottom:1px solid var(--sq-border);white-space:nowrap}
+  .data-table th{text-align:left;font-weight:700;color:var(--sq-text-faint);font-size:10.5px;text-transform:uppercase;letter-spacing:.07em;padding:9px 8px;border-bottom:1px solid var(--sq-border);white-space:nowrap}
   .data-table th.num{text-align:right}
   .data-table tbody tr{transition:background .1s}
   .data-table tbody tr[data-comp]{cursor:pointer}
   .data-table tbody tr[data-comp]:hover{background:#f3f6ff}
   .data-table tbody tr.you{background:#f3f5ff}
   .data-table tbody tr.you:hover{background:#e9eeff}
-  .data-table td{padding:14px 12px;border-bottom:1px solid var(--sq-border);font-size:14px;vertical-align:middle}
+  .data-table td{padding:12px 8px;border-bottom:1px solid var(--sq-border);font-size:14px;vertical-align:middle}
   .data-table tbody tr:last-child td{border-bottom:0}
-  .data-table td.rank{color:var(--sq-text-faint);font-weight:700;width:36px;font-variant-numeric:tabular-nums}
+  .data-table td.rank{color:var(--sq-text-faint);font-weight:700;width:28px;font-variant-numeric:tabular-nums}
   .data-table td.num{text-align:right;font-variant-numeric:tabular-nums;font-weight:600;white-space:nowrap}
   .data-table tr.you td{color:var(--sq-blue);font-weight:600}
   .data-table tr.you td.rank{color:var(--sq-blue)}
-  .data-table .brand-cell{display:flex;align-items:center;gap:11px;min-width:0}
-  .data-table .brand-cell .avatar{width:28px;height:28px;font-size:12px;border-radius:6px;flex-shrink:0}
+  .data-table .brand-cell{display:flex;align-items:center;gap:10px;min-width:0}
+  .data-table .brand-cell .avatar{width:26px;height:26px;font-size:11px;border-radius:6px;flex-shrink:0}
   .data-table .brand-cell .name{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .data-table .post-cell{display:flex;gap:14px;align-items:flex-start;min-width:0}
   .data-table .post-cell .thumb{width:54px;height:54px;border-radius:8px;flex-shrink:0}
@@ -356,25 +356,25 @@
         </div>
       </div>
 
-      <div class="group-head"><span>Competitors</span><span>Followers</span></div>
+      <div class="group-head"><span>Competitors</span></div>
       <div class="row" data-view="competitor" data-comp="Hootsuite">
         <div class="avatar" style="background:#000;width:28px;height:28px;font-size:11px">H</div>
         <div class="meta">
-          <div class="name">Hootsuite <span class="platform-icon pi-ig">i</span><span class="platform-icon pi-fb">f</span><span class="platform-icon pi-x">x</span></div>
+          <div class="name">Hootsuite</div>
           <div class="stats"><span>340K</span><span class="pill down">-0.3%</span></div>
         </div>
       </div>
       <div class="row" data-view="competitor" data-comp="Sprout Social">
         <div class="avatar" style="background:#1a8b6a;width:28px;height:28px;font-size:11px">S</div>
         <div class="meta">
-          <div class="name">Sprout Social <span class="platform-icon pi-ig">i</span><span class="platform-icon pi-li">l</span><span class="platform-icon pi-x">x</span></div>
+          <div class="name">Sprout Social</div>
           <div class="stats"><span>285K</span><span class="pill up">+0.8%</span></div>
         </div>
       </div>
       <div class="row" data-view="competitor" data-comp="Metricool">
         <div class="avatar" style="background:#dfff5c;color:#000;width:28px;height:28px;font-size:11px">M</div>
         <div class="meta">
-          <div class="name">Metricool <span class="platform-icon pi-ig">i</span><span class="platform-icon pi-fb">f</span><span class="platform-icon pi-x">x</span></div>
+          <div class="name">Metricool</div>
           <div class="stats"><span>32K</span><span class="pill up">+1.6%</span></div>
         </div>
       </div>
@@ -644,14 +644,13 @@ function viewOverview(){
         <div class="panel-padded">
           <div class="titlebar"><h3>💬 Engagement rate</h3><div class="legend">avg ${engAvg.toFixed(1)}%</div></div>
           <table class="data-table">
-            <thead><tr><th>#</th><th>Brand</th><th class="num">Eng. rate</th><th class="num">Posts / wk</th></tr></thead>
+            <thead><tr><th>#</th><th>Brand</th><th class="num">Eng. rate</th></tr></thead>
             <tbody>
               ${engSorted.map((s,i)=>`
                 <tr ${rowAttrs(s)}>
                   <td class="rank">${i+1}</td>
                   <td>${brandCell(s)}</td>
                   <td class="num">${s.c.eng}%</td>
-                  <td class="num">${s.c.postsPerWeek}</td>
                 </tr>`).join('')}
             </tbody>
           </table>
